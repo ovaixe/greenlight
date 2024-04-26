@@ -98,8 +98,10 @@ func main() {
 	// Start the HTTP server.
 	logger.PrintInfo("starting server", map[string]string{"env": cfg.env, "addr": srv.Addr})
 
-	err = srv.ListenAndServe()
-	logger.PrintFatal(err, nil)
+	err = app.serve()
+	if err != nil {
+		logger.PrintFatal(err, nil)
+	}
 }
 
 // The openDB() function returns a sql.DB connection pool.
