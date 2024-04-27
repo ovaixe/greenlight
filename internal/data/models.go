@@ -21,12 +21,14 @@ type Models struct {
 		Update(movie *Movie) error
 		Delete(id int64) error
 	}
+	Users UserModel
 }
 
 // For ease of use, we also add a New() method which returns a Models struct containing the initialized MovieModel.
 func NewModels(db *sql.DB) Models {
 	return Models{
 		Movies: MovieModel{DB: db},
+		Users:  UserModel{DB: db},
 	}
 }
 
