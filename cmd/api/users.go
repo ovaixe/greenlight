@@ -10,9 +10,9 @@ import (
 
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-        Name     string `json:"name"`
-        Email    string `json:"email"`
-        Password string `json:"password"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	err := app.readJSON(w, r, &input)
@@ -22,10 +22,10 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	user := &data.User{
-        Name:     input.Name,
-        Email:    input.Email,
+		Name:      input.Name,
+		Email:     input.Email,
 		Activated: false,
-    }
+	}
 
 	err = user.Password.Set(input.Password)
 	if err != nil {
@@ -52,8 +52,17 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	// Use the background helper to execute an anonymous function that sends the welcome
+	// email.
+	app.background(func() {
+		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
+		if err != nil {
+			app.logger.PrintError(err, nil)
+		}
+	})
+
 	err = app.writeJSON(w, http.StatusCreated, envelope{"user": user}, nil)
 	if err != nil {
-        app.serverErrorResponse(w, r, err)
-    }
+		app.serverErrorResponse(w, r, err)
+	}
 }

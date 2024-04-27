@@ -10,6 +10,7 @@ import (
 	_ "github.com/lib/pq"
 	"greenlight.ovaixe.net/internal/data"
 	"greenlight.ovaixe.net/internal/jsonlog"
+	"greenlight.ovaixe.net/internal/mailer"
 )
 
 // Declare a string containing the application version number.
@@ -30,6 +31,13 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 // Define an application struct to hold the dependencies for our HTTP handlers, helpers, and middleware.
@@ -37,6 +45,7 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	models data.Models
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -60,6 +69,13 @@ func main() {
 	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
 	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
+	// Read the SMTP server configuration settings into the config struct.
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "cbcafb3c9a7310", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "ef2df66e592e7a", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.ovaixe.net>", "SMTP sender")
+
 	flag.Parse()
 
 	// Initialize a new logger which writes messages to the standard out stream, prefixed with the current date and time.
@@ -80,6 +96,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serve()
