@@ -21,6 +21,9 @@ type password struct {
 	hash      []byte
 }
 
+// Declare a new AnonymousUser variable.
+var AnonymousUser = &User{}
+
 type User struct {
 	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -33,6 +36,11 @@ type User struct {
 
 type UserModel struct {
 	DB *sql.DB
+}
+
+// Check if a User instance is the AnonymousUser.
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
 }
 
 func (m UserModel) Insert(user *User) error {
