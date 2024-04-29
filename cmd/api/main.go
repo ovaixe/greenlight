@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -18,7 +19,9 @@ import (
 )
 
 // Declare a string containing the application version number.
-const version = "1.0.0"
+var version = "1.0.0"
+
+var buildTime string
 
 // Define a config struct to hold all the configuration settings  for our application.
 type config struct {
@@ -89,7 +92,18 @@ func main() {
 		return nil
 	})
 
+	// Create a new version boolean flag with the default value of false.
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	// If the version flag value is true, then print out the version number and
+	// immediately exit.
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		fmt.Printf("Build time:\t%s\n", buildTime)
+		os.Exit(0)
+	}
 
 	// Initialize a new logger which writes messages to the standard out stream, prefixed with the current date and time.
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
