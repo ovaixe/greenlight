@@ -12,10 +12,10 @@ import (
 type Level int8
 
 const (
-	LevelInfo  Level = iota // Has teh value 0.
-	LevelError              // Has teh value 1.
-	LevelFatal              // Has teh value 2.
-	LevelOff                // Has teh value 3.
+	LevelInfo  Level = iota // Has the value 0.
+	LevelError              // Has the value 1.
+	LevelFatal              // Has the value 2.
+	LevelOff                // Has the value 3.
 )
 
 func (l Level) String() string {
